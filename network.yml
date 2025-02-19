@@ -1,0 +1,43 @@
+Description: CD12352 - Infrastructure as Code Project - Network
+# CloudFormation networking resources and parameters go in here
+Parameters:
+  # Add your parameters here
+  ProjectName:
+    Type: String
+    Description: Project Name used for tagging resources
+
+  EnvironmentName:
+    Type: String
+    Description: An environment name that will be prefixed to resources 
+
+#I'm not sure EnvironmentName and ProjectName are both required 
+
+  VpcCIDR: 
+    Description: IP range for the VPCN in CIDR notation
+    Type: String
+    Default: "10.0.0.0/16"
+
+Resources:
+  # Add your resources here
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR 
+      EnabledDnsHostnames: true
+      Tags:
+      - Key: Name 
+        Value: !Ref ProjectName 
+  
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
