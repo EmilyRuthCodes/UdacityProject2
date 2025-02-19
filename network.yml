@@ -2,15 +2,33 @@ Description: CD12352 - Infrastructure as Code Project - Network
 # CloudFormation networking resources and parameters go in here
 Parameters:
   # Add your parameters here
-  ProjectName:
-    Type: String
-    Description: Project Name used for tagging resources
-
   EnvironmentName:
     Type: String
     Description: An environment name that will be prefixed to resources 
 
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 10.0.0.0/24
+
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 10.0.1.0/24
+
+  PrivateSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+    Type: String
+    Default: 10.0.2.0/24
+
+  PrivateSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
+    Type: String
+    Default: 10.0.3.0/24
+
 #I'm not sure EnvironmentName and ProjectName are both required 
+
+# ATM these have been directly copied and pasted 
 
   VpcCIDR: 
     Description: IP range for the VPCN in CIDR notation
@@ -23,11 +41,13 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCIDR 
-      EnabledDnsHostnames: true
+      CidrBlock: !Ref VpcCIDR
       Tags:
       - Key: Name 
-        Value: !Ref ProjectName 
+        Value: !Ref EnvironmentName 
+
+  # i had to delete ' EnabledDnsHostnames: true ' on VPC as it throw an error on the cloud formation completion. 
+
   
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -41,3 +61,56 @@ Resources:
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
+
+  # Next Subnets - use 2 AZ zones for high avaliability. 
+
+  
+  PublicSubnet1: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName}-Public-Subnet-AZ1
+
+  
+  PublicSubnet2: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName}-Public-Subnet-AZ2
+
+
+  PrivateSubnet1: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName}-Private-Subnet-AZ1
+
+  
+  PrivateSubnet2: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName}-Private-Subnet-AZ2
+  
+
+  
