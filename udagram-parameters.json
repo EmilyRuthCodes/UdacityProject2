@@ -1,7 +1,6 @@
-CloudFormation application resources and parameters
 [
 	{
-		"ParameterKey": "Add you parameters here",
-		"ParameterValue": "Add you parameters here"
+		"ParameterKey": "EnvironmentName",
+		"ParameterValue": "Udagram-env"
 	}
 ]
