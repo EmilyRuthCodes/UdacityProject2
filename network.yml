@@ -229,6 +229,8 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
 
+#Deleted resources below this to create then add and update and added to udagram.yml file?
+
 # Outputs Section - create variables to use in other scripts. 
 
 Outputs: 
